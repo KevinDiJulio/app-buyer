@@ -1,15 +1,6 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher(["/", "/no-autorizado"]);
-const isApiRoute = createRouteMatcher(["/api/(.*)"]);
-
-export default clerkMiddleware(async (auth, req) => {
-  if (isApiRoute(req)) return;
-  if (isPublicRoute(req)) return;
-  const { userId } = await auth();
-  if (!userId) return (await auth()).redirectToSignIn();
-});
+export default clerkMiddleware();
 
 export const config = {
   matcher: ["/((?!_next|.*\\..*).*)"],
