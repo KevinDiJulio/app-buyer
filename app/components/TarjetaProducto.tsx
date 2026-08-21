@@ -1,4 +1,5 @@
 "use client";
+import { Box, Text, Button, Badge, Heading } from "@chakra-ui/react";
 
 type Producto = {
   id: number;
@@ -23,29 +24,55 @@ export default function TarjetaProducto({ producto }: { producto: Producto }) {
   const sinStock = producto.stock === 0;
 
   return (
-    <div className="tarjeta">
-      <div className="tarjeta-header" style={{ background: gradiente }}>
-        <span className="tarjeta-emoji">{producto.emoji}</span>
-      </div>
+    <Box
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="xl"
+      overflow="hidden"
+      display="flex"
+      flexDirection="column"
+      boxShadow="sm"
+      transition="transform 0.2s, box-shadow 0.2s"
+      _hover={{ transform: "translateY(-4px)", boxShadow: "lg" }}
+      _dark={{ borderColor: "gray.700" }}
+    >
+      <Box
+        h="120px"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        style={{ background: gradiente }}
+      >
+        <Text fontSize="4xl">{producto.emoji}</Text>
+      </Box>
 
-      <div className="tarjeta-body">
-        <h2 className="tarjeta-nombre">{producto.nombre}</h2>
-        <p className="tarjeta-descripcion">{producto.descripcion}</p>
+      <Box p={4} display="flex" flexDirection="column" gap={2} flex={1} bg="white" _dark={{ bg: "gray.800" }}>
+        <Heading size="sm" color="gray.800" _dark={{ color: "white" }}>
+          {producto.nombre}
+        </Heading>
+        <Text fontSize="sm" color="gray.500" flex={1}>
+          {producto.descripcion}
+        </Text>
 
-        <div className="tarjeta-footer">
-          <span className="tarjeta-precio">${producto.precio.toFixed(2)}</span>
-          <span className={`tarjeta-stock ${sinStock ? "sin-stock" : "con-stock"}`}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
+          <Text fontWeight="bold" fontSize="xl" color="gray.900" _dark={{ color: "white" }}>
+            ${producto.precio.toFixed(2)}
+          </Text>
+          <Badge colorPalette={sinStock ? "red" : "green"} borderRadius="full" px={2}>
             {sinStock ? "Sin stock" : `${producto.stock} uds.`}
-          </span>
-        </div>
+          </Badge>
+        </Box>
 
-        <button
-          className={`tarjeta-btn ${sinStock ? "tarjeta-btn-disabled" : ""}`}
+        <Button
+          colorPalette="purple"
+          size="sm"
+          width="full"
+          mt={1}
           disabled={sinStock}
         >
           {sinStock ? "Sin stock" : "Comprar"}
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Box>
+    </Box>
   );
 }

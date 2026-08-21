@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Suspense } from "react";
+import { Box, Container, SimpleGrid, Heading, Text } from "@chakra-ui/react";
 import TarjetaProducto from "./components/TarjetaProducto";
 import Buscador from "./components/Buscador";
 import Paginacion from "./components/Paginacion";
@@ -32,34 +33,38 @@ export default async function Home({ searchParams }: Props) {
   const totalPaginas = Math.ceil(total / POR_PAGINA);
 
   return (
-    <div className="catalogo-page">
-      <div className="catalogo-hero">
-        <h1 className="catalogo-titulo">Encontrá lo que necesitás</h1>
-        <p className="catalogo-subtitulo">
+    <Container maxW="1280px" px={{ base: 4, md: 8 }} py={{ base: 6, md: 12 }}>
+      <Box mb={10}>
+        <Heading size="2xl" fontWeight="extrabold" letterSpacing="tight" mb={2}>
+          Encontrá lo que necesitás
+        </Heading>
+        <Text color="gray.500" fontSize="lg">
           {total} producto{total !== 1 ? "s" : ""} disponibles
           {filtro && ` para "${filtro}"`}
-        </p>
-      </div>
+        </Text>
+      </Box>
 
       <Suspense>
         <Buscador />
       </Suspense>
 
       {productos.length === 0 ? (
-        <div className="catalogo-vacio">
-          <p>No se encontraron productos{filtro ? ` para "${filtro}"` : ""}.</p>
-        </div>
+        <Box textAlign="center" py={16} color="gray.500">
+          <Text fontSize="lg">
+            No se encontraron productos{filtro ? ` para "${filtro}"` : ""}.
+          </Text>
+        </Box>
       ) : (
-        <div className="catalogo-grid">
+        <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} gap={6}>
           {productos.map((producto) => (
             <TarjetaProducto key={producto.id} producto={producto} />
           ))}
-        </div>
+        </SimpleGrid>
       )}
 
       <Suspense>
         <Paginacion paginaActual={pagina} totalPaginas={totalPaginas} />
       </Suspense>
-    </div>
+    </Container>
   );
 }

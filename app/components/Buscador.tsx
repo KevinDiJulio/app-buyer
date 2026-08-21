@@ -1,6 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Box, Input } from "@chakra-ui/react";
 
 export default function Buscador() {
   const router = useRouter();
@@ -28,18 +29,42 @@ export default function Buscador() {
   }, [valor]);
 
   return (
-    <div className="buscador-wrap">
-      <span className="buscador-icono">🔍</span>
-      <input
-        className="buscador-input"
-        type="text"
+    <Box position="relative" display="flex" alignItems="center" mb={8} maxW="480px">
+      <Box
+        position="absolute"
+        left="14px"
+        zIndex={1}
+        pointerEvents="none"
+        fontSize="sm"
+      >
+        🔍
+      </Box>
+      <Input
+        pl="42px"
+        pr={valor ? "40px" : "14px"}
+        py={3}
         placeholder="Buscar productos..."
         value={valor}
         onChange={(e) => setValor(e.target.value)}
+        borderRadius="xl"
+        borderColor="gray.200"
+        _dark={{ borderColor: "gray.600" }}
+        _focus={{ borderColor: "purple.400", boxShadow: "0 0 0 3px rgba(99,102,241,0.15)" }}
       />
       {valor && (
-        <button className="buscador-clear" onClick={() => setValor("")}>✕</button>
+        <Box
+          as="button"
+          position="absolute"
+          right="12px"
+          onClick={() => setValor("")}
+          color="gray.400"
+          _hover={{ color: "gray.600" }}
+          cursor="pointer"
+          fontSize="sm"
+        >
+          ✕
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }
