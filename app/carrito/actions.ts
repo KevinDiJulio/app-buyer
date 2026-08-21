@@ -12,66 +12,46 @@ export async function agregarAlCarrito(productoId: number, cantidad: number) {
     throw new Error("La cantidad debe ser al menos 1");
   }
 
-  await prisma.$transaction(async (tx) => {
-    const producto = await tx.producto.findUnique({ where: { id: productoId } });
-    if (!producto) throw new Error("Producto no encontrado");
-    if (cantidad > producto.stock) {
-      throw new Error(`Stock disponible: ${producto.stock} unidades`);
-    }
+  const producto = await prisma.producto.findUnique({ where: { id: productoId } });
+  if (!producto) throw new Error("Producto no encontrado");
 
-    await tx.carritoItem.upsert({
-      where: { userId_productoId: { userId, productoId } },
-      update: { cantidad: { increment: cantidad } },
-      create: { userId, productoId, cantidad },
-    });
+  const itemExistente = await prisma.carritoItem.findUnique({
+    where: { userId_productoId: { userId, productoId } },
+  });
 
-    await tx.producto.update({
-      where: { id: productoId },
-      data: { stock: { decrement: cantidad } },
-    });
+  const cantidadTotal = (itemExistente?.cantidad ?? 0) + cantidad;
+  if (cantidadTotal > producto.stock) {
+    throw new Error(`Stock disponible: ${producto.stock} unidades`);
+  }
+
+  await prisma.carritoItem.upsert({
+    where: { userId_productoId: { userId, productoId } },
+    update: { cantidad: { increment: cantidad } },
+    create: { userId, productoId, cantidad },
   });
 
   revalidatePath("/carrito");
-  revalidatePath("/");
 }
 
 export async function actualizarCantidad(id: number, cantidad: number) {
   const { userId } = await auth();
   if (!userId) throw new Error("No autorizado");
 
-  await prisma.$transaction(async (tx) => {
-    const item = await tx.carritoItem.findUnique({ where: { id, userId } });
+  if (cantidad < 1) {
+    await prisma.carritoItem.delete({ where: { id, userId } });
+  } else {
+    const item = await prisma.carritoItem.findUnique({
+      where: { id, userId },
+      include: { producto: true },
+    });
     if (!item) throw new Error("Item no encontrado");
-
-    const diff = cantidad - item.cantidad;
-
-    if (cantidad < 1) {
-      await tx.producto.update({
-        where: { id: item.productoId },
-        data: { stock: { increment: item.cantidad } },
-      });
-      await tx.carritoItem.delete({ where: { id, userId } });
-    } else if (diff > 0) {
-      const producto = await tx.producto.findUnique({ where: { id: item.productoId } });
-      if (!producto || producto.stock < diff) {
-        throw new Error(`Stock disponible: ${producto?.stock ?? 0} unidades adicionales`);
-      }
-      await tx.producto.update({
-        where: { id: item.productoId },
-        data: { stock: { decrement: diff } },
-      });
-      await tx.carritoItem.update({ where: { id, userId }, data: { cantidad } });
-    } else if (diff < 0) {
-      await tx.producto.update({
-        where: { id: item.productoId },
-        data: { stock: { increment: -diff } },
-      });
-      await tx.carritoItem.update({ where: { id, userId }, data: { cantidad } });
+    if (cantidad > item.producto.stock) {
+      throw new Error(`Stock disponible: ${item.producto.stock} unidades`);
     }
-  });
+    await prisma.carritoItem.update({ where: { id, userId }, data: { cantidad } });
+  }
 
   revalidatePath("/carrito");
-  revalidatePath("/");
 }
 
 export async function actualizarSeleccion(id: number, seleccionado: boolean) {
@@ -86,17 +66,6 @@ export async function eliminarDelCarrito(id: number) {
   const { userId } = await auth();
   if (!userId) throw new Error("No autorizado");
 
-  await prisma.$transaction(async (tx) => {
-    const item = await tx.carritoItem.findUnique({ where: { id, userId } });
-    if (!item) throw new Error("Item no encontrado");
-
-    await tx.producto.update({
-      where: { id: item.productoId },
-      data: { stock: { increment: item.cantidad } },
-    });
-    await tx.carritoItem.delete({ where: { id, userId } });
-  });
-
+  await prisma.carritoItem.delete({ where: { id, userId } });
   revalidatePath("/carrito");
-  revalidatePath("/");
 }

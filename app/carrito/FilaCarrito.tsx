@@ -28,7 +28,7 @@ export default function FilaCarrito({ item }: { item: Item }) {
     setCargando(false);
   }
 
-  const maxCantidad = item.cantidad + item.producto.stock;
+  const maxCantidad = item.producto.stock;
 
   function handleCantidad(nuevaCantidad: number) {
     const val = Math.min(Math.max(1, nuevaCantidad), maxCantidad);
