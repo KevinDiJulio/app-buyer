@@ -1,5 +1,6 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Button, Flex, HStack } from "@chakra-ui/react";
 
 type Props = {
   paginaActual: number;
@@ -21,34 +22,40 @@ export default function Paginacion({ paginaActual, totalPaginas }: Props) {
   const paginas = Array.from({ length: totalPaginas }, (_, i) => i + 1);
 
   return (
-    <div className="paginacion">
-      <button
-        className="pag-btn"
+    <Flex alignItems="center" justifyContent="center" gap={2} mt={12} flexWrap="wrap">
+      <Button
+        size="sm"
+        variant="outline"
+        colorPalette="purple"
         disabled={paginaActual === 1}
         onClick={() => irA(paginaActual - 1)}
       >
         ← Anterior
-      </button>
+      </Button>
 
-      <div className="pag-numeros">
+      <HStack gap={1}>
         {paginas.map((n) => (
-          <button
+          <Button
             key={n}
-            className={`pag-numero ${n === paginaActual ? "pag-activo" : ""}`}
+            size="sm"
+            variant={n === paginaActual ? "solid" : "outline"}
+            colorPalette="purple"
             onClick={() => irA(n)}
           >
             {n}
-          </button>
+          </Button>
         ))}
-      </div>
+      </HStack>
 
-      <button
-        className="pag-btn"
+      <Button
+        size="sm"
+        variant="outline"
+        colorPalette="purple"
         disabled={paginaActual === totalPaginas}
         onClick={() => irA(paginaActual + 1)}
       >
         Siguiente →
-      </button>
-    </div>
+      </Button>
+    </Flex>
   );
 }
