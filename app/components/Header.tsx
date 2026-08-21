@@ -41,6 +41,13 @@ export default async function Header() {
 
       <Flex as="nav" alignItems="center" gap={4}>
         {userId && (
+          <Link href="/carrito">
+            <Button size="sm" variant="outline" colorPalette="purple" gap={2}>
+              🛒 Mi carrito
+            </Button>
+          </Link>
+        )}
+        {userId && (
           <Link href="/pedidos">
             <Text fontSize="sm" fontWeight="medium" color="gray.500" _hover={{ color: "purple.500" }}>
               Mis pedidos
