@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { Box, Text, Button, Badge, Heading, HStack, NumberInput } from "@chakra-ui/react";
 import { agregarAlCarrito } from "@/app/carrito/actions";
 
@@ -27,8 +28,14 @@ export default function TarjetaProducto({ producto }: { producto: Producto }) {
   const [cantidad, setCantidad] = useState(1);
   const [cargando, setCargando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
+  const { isSignedIn } = useAuth();
+  const clerk = useClerk();
 
   async function handleAgregar() {
+    if (!isSignedIn) {
+      clerk.openSignIn();
+      return;
+    }
     setCargando(true);
     setMensaje(null);
     try {
