@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Box, Button, Text, NumberInput, HStack } from "@chakra-ui/react";
 import { actualizarCantidad, actualizarSeleccion, eliminarDelCarrito } from "./actions";
 
@@ -19,6 +19,8 @@ type Item = {
 
 export default function FilaCarrito({ item }: { item: Item }) {
   const [cargando, setCargando] = useState(false);
+  const [cantidadLocal, setCantidadLocal] = useState(item.cantidad);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function handleSeleccion(checked: boolean) {
     setCargando(true);
@@ -26,11 +28,16 @@ export default function FilaCarrito({ item }: { item: Item }) {
     setCargando(false);
   }
 
-  async function handleCantidad(nuevaCantidad: number) {
+  function handleCantidad(nuevaCantidad: number) {
     const val = Math.min(Math.max(1, nuevaCantidad), item.producto.stock);
-    setCargando(true);
-    await actualizarCantidad(item.id, val);
-    setCargando(false);
+    setCantidadLocal(val);
+
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(async () => {
+      setCargando(true);
+      await actualizarCantidad(item.id, val);
+      setCargando(false);
+    }, 500);
   }
 
   async function handleEliminar() {
@@ -39,7 +46,7 @@ export default function FilaCarrito({ item }: { item: Item }) {
     setCargando(false);
   }
 
-  const subtotal = item.producto.precio * item.cantidad;
+  const subtotal = item.producto.precio * cantidadLocal;
 
   return (
     <tr style={{ borderBottom: "1px solid var(--chakra-colors-gray-100)", opacity: cargando ? 0.5 : 1 }}>
@@ -64,7 +71,7 @@ export default function FilaCarrito({ item }: { item: Item }) {
         <NumberInput.Root
           min={1}
           max={item.producto.stock}
-          value={String(item.cantidad)}
+          value={String(cantidadLocal)}
           onValueChange={(e) => handleCantidad(Number(e.value))}
           size="sm"
           maxW="100px"
