@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Box, Flex, Button, Text } from "@chakra-ui/react";
 
 export default async function Header() {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
+  const esAdmin = (sessionClaims?.metadata as { role?: string })?.role === "admin";
 
   return (
     <Box
@@ -43,6 +44,13 @@ export default async function Header() {
           <Link href="/pedidos">
             <Text fontSize="sm" fontWeight="medium" color="gray.500" _hover={{ color: "purple.500" }}>
               Mis pedidos
+            </Text>
+          </Link>
+        )}
+        {esAdmin && (
+          <Link href="/admin">
+            <Text fontSize="sm" fontWeight="medium" color="gray.500" _hover={{ color: "purple.500" }}>
+              Admin
             </Text>
           </Link>
         )}
