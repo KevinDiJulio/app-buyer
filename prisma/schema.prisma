@@ -8,13 +8,25 @@ datasource db {
 }
 
 model Producto {
-  id          Int      @id @default(autoincrement())
-  nombre      String
-  descripcion String
-  precio      Float
-  emoji       String
-  stock       Int      @default(0)
-  pedidos     Pedido[]
+  id            Int           @id @default(autoincrement())
+  nombre        String
+  descripcion   String
+  precio        Float
+  emoji         String
+  stock         Int           @default(0)
+  pedidos       Pedido[]
+  carritoItems  CarritoItem[]
+}
+
+model CarritoItem {
+  id           Int      @id @default(autoincrement())
+  userId       String
+  productoId   Int
+  producto     Producto @relation(fields: [productoId], references: [id])
+  cantidad     Int      @default(1)
+  seleccionado Boolean  @default(true)
+
+  @@unique([userId, productoId])
 }
 
 model Pedido {

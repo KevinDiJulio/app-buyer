@@ -1,5 +1,8 @@
 "use client";
-import { Box, Text, Button, Badge, Heading } from "@chakra-ui/react";
+import { useState } from "react";
+import { useAuth, useClerk } from "@clerk/nextjs";
+import { Box, Text, Button, Badge, Heading, HStack, NumberInput } from "@chakra-ui/react";
+import { agregarAlCarrito } from "@/app/carrito/actions";
 
 type Producto = {
   id: number;
@@ -22,6 +25,29 @@ const GRADIENTES = [
 export default function TarjetaProducto({ producto }: { producto: Producto }) {
   const gradiente = GRADIENTES[producto.id % GRADIENTES.length];
   const sinStock = producto.stock === 0;
+  const [cantidad, setCantidad] = useState(1);
+  const [cargando, setCargando] = useState(false);
+  const [mensaje, setMensaje] = useState<string | null>(null);
+  const { isSignedIn } = useAuth();
+  const clerk = useClerk();
+
+  async function handleAgregar() {
+    if (!isSignedIn) {
+      clerk.openSignIn();
+      return;
+    }
+    setCargando(true);
+    setMensaje(null);
+    try {
+      await agregarAlCarrito(producto.id, cantidad);
+      setMensaje("¡Agregado!");
+      setTimeout(() => setMensaje(null), 2000);
+    } catch (e) {
+      setMensaje(e instanceof Error ? e.message : "Error");
+    } finally {
+      setCargando(false);
+    }
+  }
 
   return (
     <Box
@@ -59,19 +85,46 @@ export default function TarjetaProducto({ producto }: { producto: Producto }) {
             ${producto.precio.toFixed(2)}
           </Text>
           <Badge colorPalette={sinStock ? "red" : "green"} borderRadius="full" px={2}>
-            {sinStock ? "Sin stock" : `${producto.stock} uds.`}
+            {sinStock ? "Sin stock" : `Stock: ${producto.stock}`}
           </Badge>
         </Box>
 
-        <Button
-          colorPalette="purple"
-          size="sm"
-          width="full"
-          mt={1}
-          disabled={sinStock}
-        >
-          {sinStock ? "Sin stock" : "Comprar"}
-        </Button>
+        {!sinStock && (
+          <HStack mt={1} gap={2}>
+            <NumberInput.Root
+              min={1}
+              max={producto.stock}
+              value={String(cantidad)}
+              onValueChange={(e) => {
+              const val = Number(e.value);
+              setCantidad(Math.min(Math.max(1, val), producto.stock));
+            }}
+              size="sm"
+              maxW="80px"
+            >
+              <NumberInput.Input />
+              <NumberInput.Control>
+                <NumberInput.IncrementTrigger />
+                <NumberInput.DecrementTrigger />
+              </NumberInput.Control>
+            </NumberInput.Root>
+            <Button
+              colorPalette="purple"
+              size="sm"
+              flex={1}
+              onClick={handleAgregar}
+              loading={cargando}
+            >
+              {mensaje ?? "Agregar al carrito"}
+            </Button>
+          </HStack>
+        )}
+
+        {sinStock && (
+          <Button size="sm" width="full" mt={1} disabled>
+            Sin stock
+          </Button>
+        )}
       </Box>
     </Box>
   );
