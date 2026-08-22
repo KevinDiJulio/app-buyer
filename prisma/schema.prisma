@@ -8,14 +8,14 @@ datasource db {
 }
 
 model Producto {
-  id            Int           @id @default(autoincrement())
-  nombre        String
-  descripcion   String
-  precio        Float
-  emoji         String
-  stock         Int           @default(0)
-  pedidos       Pedido[]
-  carritoItems  CarritoItem[]
+  id           Int           @id @default(autoincrement())
+  nombre       String
+  descripcion  String
+  precio       Float
+  emoji        String
+  stock        Int           @default(0)
+  carritoItems CarritoItem[]
+  pedidoItems  PedidoItem[]
 }
 
 model CarritoItem {
@@ -30,12 +30,21 @@ model CarritoItem {
 }
 
 model Pedido {
-  id          Int      @id @default(autoincrement())
-  userId      String
-  productoId  Int
-  producto    Producto @relation(fields: [productoId], references: [id])
-  cantidad    Int
-  estado      String   @default("pendiente")
-  pagoId      String?
-  creadoEn   DateTime @default(now())
+  id       Int          @id @default(autoincrement())
+  userId   String
+  total    Float
+  estado   String       @default("pendiente")
+  pagoId   String?
+  creadoEn DateTime     @default(now())
+  items    PedidoItem[]
+}
+
+model PedidoItem {
+  id             Int      @id @default(autoincrement())
+  pedidoId       Int
+  pedido         Pedido   @relation(fields: [pedidoId], references: [id])
+  productoId     Int
+  producto       Producto @relation(fields: [productoId], references: [id])
+  cantidad       Int
+  precioUnitario Float
 }
