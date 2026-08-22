@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { SignInButton, UserButton, Show } from "@clerk/nextjs";
 import Link from "next/link";
 import { Box, Flex, Button, Text } from "@chakra-ui/react";
+import BtnColorMode from "./BtnColorMode";
 
 export default async function Header() {
   const { userId, sessionClaims } = await auth();
@@ -40,6 +41,7 @@ export default async function Header() {
       </Link>
 
       <Flex as="nav" alignItems="center" gap={4}>
+        <BtnColorMode />
         {userId && (
           <Link href="/carrito">
             <Button size="sm" variant="outline" colorPalette="purple" gap={2}>
