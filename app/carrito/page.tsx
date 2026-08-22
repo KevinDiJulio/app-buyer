@@ -1,8 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { Box, Container, Heading, Text, Button } from "@chakra-ui/react";
+import { Box, Container, Heading, Text } from "@chakra-ui/react";
 import FilaCarrito from "./FilaCarrito";
+import BtnConfirmarCompra from "./BtnConfirmarCompra";
 
 export default async function CarritoPage() {
   const { userId } = await auth();
@@ -51,9 +52,7 @@ export default async function CarritoPage() {
               <Text fontSize="sm" color="gray.500">Total seleccionado</Text>
               <Text fontWeight="bold" fontSize="2xl">${total.toFixed(2)}</Text>
             </Box>
-            <Button colorPalette="purple" size="lg" disabled={total === 0}>
-              Confirmar compra
-            </Button>
+            <BtnConfirmarCompra total={total} />
           </Box>
         </>
       )}
