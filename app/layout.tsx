@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <ClerkProvider>
-      <html lang="es">
+      <html lang="es" suppressHydrationWarning>
         <body>
           <Providers>
             <Header />
