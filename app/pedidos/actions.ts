@@ -18,12 +18,11 @@ export async function confirmarCompra() {
 
   if (items.length === 0) throw new Error("No hay items seleccionados en el carrito");
 
-  // Calculamos el total: recorremos todos los items y acumulamos precio * cantidad
-  // reduce(callback, valorInicial) → en cada vuelta: acc = acc + subtotalDelItem
-  const total = items.reduce(
-    (acc, item) => acc + item.producto.precio * item.cantidad,
-    0
-  );
+  // Calculamos el total sumando precio * cantidad de cada item seleccionado
+  let total = 0;
+  for (const item of items) {
+    total += item.producto.precio * item.cantidad;
+  }
 
   // Todo lo siguiente ocurre en una transacción atómica:
   // si cualquier paso falla, NADA se guarda en la DB (rollback automático)
