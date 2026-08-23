@@ -15,7 +15,10 @@ export default function BtnConfirmarCompra({ total }: { total: number }) {
     try {
       await confirmarCompra();
     } catch (e) {
-      // Si hay stock insuficiente u otro error, se muestra sin recargar la página
+      // redirect() de Next.js lanza un error interno con digest "NEXT_REDIRECT"
+      // hay que re-lanzarlo para que Next.js lo procese como navegación
+      if ((e as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT")) throw e;
+
       setError(e instanceof Error ? e.message : "Error al confirmar la compra");
       setCargando(false);
     }
