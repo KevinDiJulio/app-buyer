@@ -20,12 +20,13 @@ type Item = {
 export default function FilaCarrito({ item }: { item: Item }) {
   const [cargando, setCargando] = useState(false);
   const [cantidadLocal, setCantidadLocal] = useState(item.cantidad);
+  // Estado local para respuesta visual inmediata — el servidor confirma después
+  const [seleccionadoLocal, setSeleccionadoLocal] = useState(item.seleccionado);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function handleSeleccion(checked: boolean) {
-    setCargando(true);
+    setSeleccionadoLocal(checked); // actualización optimista: respuesta visual inmediata
     await actualizarSeleccion(item.id, checked);
-    setCargando(false);
   }
 
   const maxCantidad = item.producto.stock;
@@ -55,7 +56,7 @@ export default function FilaCarrito({ item }: { item: Item }) {
       <td style={{ padding: "12px" }}>
         <input
           type="checkbox"
-          checked={item.seleccionado}
+          checked={seleccionadoLocal}
           onChange={(e) => handleSeleccion(e.target.checked)}
           style={{ width: "16px", height: "16px", cursor: "pointer" }}
         />
