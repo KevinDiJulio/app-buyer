@@ -1,8 +1,16 @@
 "use server";
 
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+
+async function requireAdmin() {
+  const { sessionClaims } = await auth();
+  if ((sessionClaims?.metadata as { role?: string })?.role !== "admin") {
+    throw new Error("No autorizado");
+  }
+}
 
 const ProductoSchema = z.object({
   nombre: z.string().min(1, "El nombre es obligatorio"),
@@ -13,6 +21,7 @@ const ProductoSchema = z.object({
 });
 
 export async function crearProducto(formData: FormData) {
+  await requireAdmin();
   const resultado = ProductoSchema.safeParse({
     nombre: formData.get("nombre"),
     descripcion: formData.get("descripcion"),
@@ -31,6 +40,7 @@ export async function crearProducto(formData: FormData) {
 }
 
 export async function editarProducto(id: number, formData: FormData) {
+  await requireAdmin();
   const resultado = ProductoSchema.safeParse({
     nombre: formData.get("nombre"),
     descripcion: formData.get("descripcion"),
@@ -49,6 +59,7 @@ export async function editarProducto(id: number, formData: FormData) {
 }
 
 export async function borrarProducto(id: number) {
+  await requireAdmin();
   const activos = await prisma.pedido.count({
     where: { productoId: id, estado: { not: "cancelado" } },
   });

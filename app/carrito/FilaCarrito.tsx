@@ -20,13 +20,17 @@ type Item = {
 export default function FilaCarrito({ item }: { item: Item }) {
   const [cargando, setCargando] = useState(false);
   const [cantidadLocal, setCantidadLocal] = useState(item.cantidad);
-  // Estado local para respuesta visual inmediata — el servidor confirma después
   const [seleccionadoLocal, setSeleccionadoLocal] = useState(item.seleccionado);
+  const [error, setError] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function handleSeleccion(checked: boolean) {
-    setSeleccionadoLocal(checked); // actualización optimista: respuesta visual inmediata
-    await actualizarSeleccion(item.id, checked);
+    setSeleccionadoLocal(checked);
+    try {
+      await actualizarSeleccion(item.id, checked);
+    } catch {
+      setSeleccionadoLocal(!checked); // revertir si falla
+    }
   }
 
   const maxCantidad = item.producto.stock;
@@ -34,24 +38,44 @@ export default function FilaCarrito({ item }: { item: Item }) {
   function handleCantidad(nuevaCantidad: number) {
     const val = Math.min(Math.max(1, nuevaCantidad), maxCantidad);
     setCantidadLocal(val);
+    setError(null);
 
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
       setCargando(true);
-      await actualizarCantidad(item.id, val);
-      setCargando(false);
+      try {
+        await actualizarCantidad(item.id, val);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Error al actualizar");
+        setCantidadLocal(item.cantidad); // revertir al valor original
+      } finally {
+        setCargando(false);
+      }
     }, 500);
   }
 
   async function handleEliminar() {
     setCargando(true);
-    await eliminarDelCarrito(item.id);
-    setCargando(false);
+    setError(null);
+    try {
+      await eliminarDelCarrito(item.id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error al eliminar");
+      setCargando(false);
+    }
   }
 
   const subtotal = item.producto.precio * cantidadLocal;
 
   return (
+    <>
+    {error && (
+      <tr>
+        <td colSpan={6} style={{ padding: "4px 12px" }}>
+          <Text color="red.500" fontSize="xs">{error}</Text>
+        </td>
+      </tr>
+    )}
     <tr style={{ borderBottom: "1px solid var(--chakra-colors-gray-100)", opacity: cargando ? 0.5 : 1 }}>
       <td style={{ padding: "12px" }}>
         <input
@@ -95,5 +119,6 @@ export default function FilaCarrito({ item }: { item: Item }) {
         </Button>
       </td>
     </tr>
+    </>
   );
 }
