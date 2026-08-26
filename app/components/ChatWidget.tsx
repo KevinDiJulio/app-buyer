@@ -28,43 +28,15 @@ function fmt(n: number) {
   return "$" + n.toLocaleString("es-AR");
 }
 
-function responder(q: string, productos: Producto[]): string {
-  const s = q.toLowerCase();
-
-  if (/hola|buenas/.test(s))
-    return "¡Hola! ¿En qué te puedo ayudar?";
-
-  if (/producto|tienen|qué hay|catálog/.test(s))
-    return (
-      `Tenemos ${productos.length} productos:\n\n` +
-      productos.map((p) => `${p.emoji} ${p.nombre} — ${fmt(p.precio)}`).join("\n")
-    );
-
-  if (/barat|económi|baratos|menor precio/.test(s)) {
-    const top = [...productos].sort((a, b) => a.precio - b.precio).slice(0, 3);
-    return (
-      "Los 3 más económicos:\n\n" +
-      top.map((p, i) => `${i + 1}. ${p.emoji} ${p.nombre} — ${fmt(p.precio)}`).join("\n")
-    );
-  }
-
-  if (/stock|quedan|disponible/.test(s)) {
-    const low = productos.filter((p) => p.stock <= 5);
-    return low.length
-      ? "Stock bajo:\n\n" + low.map((p) => `⚠️ ${p.emoji} ${p.nombre}: ${p.stock} restantes`).join("\n")
-      : "Todo tiene stock suficiente por ahora.";
-  }
-
-  if (/cómo compro|cómo funciona|comprar|carrito/.test(s))
-    return "Para comprar:\n\n1. Hacé click en un producto\n2. Se agrega al carrito\n3. Ajustá cantidades\n4. Confirmá la compra\n\nNecesitás estar logueado.";
-
-  const match = productos.find((p) =>
-    s.includes(p.nombre.split(" ")[0].toLowerCase()) || s.includes(p.emoji)
-  );
-  if (match)
-    return `${match.emoji} **${match.nombre}**\n• Precio: ${fmt(match.precio)}\n• Stock: ${match.stock} unidades${match.stock <= 5 ? " ⚠️" : ""}\n\n¿Lo agregás al carrito?`;
-
-  return "Puedo ayudarte con:\n• 📦 Ver el catálogo\n• 💰 Consultar precios\n• 📊 Revisar stock\n• 🛒 Cómo comprar";
+async function responder(mensajes: Mensaje[]): Promise<string> {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mensajes }),
+  });
+  if (!res.ok) return "Hubo un error al conectar con el asistente. Intentá de nuevo.";
+  const data = await res.json();
+  return data.respuesta;
 }
 
 function renderTexto(texto: string) {
@@ -137,9 +109,11 @@ export default function ChatWidget({ productos }: { productos: Producto[] }) {
     setShowSuggs(false);
     setTyping(true);
     scrollBottom();
-    await new Promise((r) => setTimeout(r, 700 + Math.random() * 500));
+    // Construir historial incluyendo el mensaje del usuario recién enviado
+    const historialActual = [...mensajes, { texto: q, rol: "user" as const }];
+    const respuesta = await responder(historialActual);
     setTyping(false);
-    addMsg(responder(q, productos), "ai");
+    addMsg(respuesta, "ai");
     setBusy(false);
   }
 
