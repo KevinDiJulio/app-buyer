@@ -59,7 +59,14 @@ export default async function Header() {
         {esAdmin && (
           <Link href="/admin">
             <Text fontSize="sm" fontWeight="medium" color="gray.500" _hover={{ color: "purple.500" }}>
-              Admin
+              Productos
+            </Text>
+          </Link>
+        )}
+        {esAdmin && (
+          <Link href="/admin/pedidos">
+            <Text fontSize="sm" fontWeight="medium" color="gray.500" _hover={{ color: "purple.500" }}>
+              Pedidos
             </Text>
           </Link>
         )}
