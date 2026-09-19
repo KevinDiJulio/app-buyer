@@ -6,6 +6,8 @@ import ChatWidget from "./components/ChatWidget";
 import { prisma } from "@/lib/prisma";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Marketplace",
   description: "Práctica Final 3 — IAW 2026",
