@@ -57,11 +57,31 @@ export default async function Header() {
           </Link>
         )}
         {esAdmin && (
-          <Link href="/admin">
-            <Text fontSize="sm" fontWeight="medium" color="gray.500" _hover={{ color: "purple.500" }}>
-              Admin
-            </Text>
-          </Link>
+          <>
+            <Box w="1px" h="20px" bg="gray.300" _dark={{ bg: "gray.600" }} />
+            <Flex gap={2} alignItems="center">
+              <Link href="/admin">
+                <Box
+                  px={3} py={1} borderRadius="full" fontSize="xs" fontWeight="semibold"
+                  bg="orange.100" color="orange.700" border="1px solid" borderColor="orange.300"
+                  _hover={{ bg: "orange.200" }}
+                  _dark={{ bg: "orange.900", color: "orange.200", borderColor: "orange.700", _hover: { bg: "orange.800" } }}
+                >
+                  Productos
+                </Box>
+              </Link>
+              <Link href="/admin/pedidos">
+                <Box
+                  px={3} py={1} borderRadius="full" fontSize="xs" fontWeight="semibold"
+                  bg="orange.100" color="orange.700" border="1px solid" borderColor="orange.300"
+                  _hover={{ bg: "orange.200" }}
+                  _dark={{ bg: "orange.900", color: "orange.200", borderColor: "orange.700", _hover: { bg: "orange.800" } }}
+                >
+                  Pedidos
+                </Box>
+              </Link>
+            </Flex>
+          </>
         )}
         <Show when="signed-out">
           <SignInButton mode="modal">
