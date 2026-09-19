@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Button, Input, HStack, Text } from "@chakra-ui/react";
+import { Button, Input, HStack, Text } from "@chakra-ui/react";
 import { borrarProducto, editarProducto } from "./actions";
 
 type Producto = {
@@ -47,7 +47,7 @@ export default function FilaProducto({ producto }: { producto: Producto }) {
     return (
       <tr>
         <td colSpan={6} style={{ padding: "8px" }}>
-          <Box as="form" action={handleEditar}>
+          <form action={handleEditar}>
             <HStack gap={2} flexWrap="wrap">
               <Input name="emoji" defaultValue={producto.emoji} maxW="80px" size="sm" />
               <Input name="nombre" defaultValue={producto.nombre} flex={1} minW="140px" size="sm" />
@@ -62,7 +62,7 @@ export default function FilaProducto({ producto }: { producto: Producto }) {
               </Button>
             </HStack>
             {error && <Text color="red.500" fontSize="sm" mt={1}>{error}</Text>}
-          </Box>
+          </form>
         </td>
       </tr>
     );

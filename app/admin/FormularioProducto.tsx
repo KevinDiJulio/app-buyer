@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Box, Button, Input, Stack, Text } from "@chakra-ui/react";
+import { Button, Input, Stack, Text } from "@chakra-ui/react";
 import { crearProducto } from "./actions";
 
 export default function FormularioProducto() {
@@ -23,7 +23,7 @@ export default function FormularioProducto() {
   }
 
   return (
-    <Box as="form" ref={formRef} action={handleSubmit}>
+    <form ref={formRef} action={handleSubmit}>
       <Stack gap={3}>
         <Stack direction="row" gap={3} flexWrap="wrap">
           <Input name="emoji" placeholder="Emoji" required maxW="100px" />
@@ -40,6 +40,6 @@ export default function FormularioProducto() {
           <Text color="red.500" fontSize="sm">{error}</Text>
         )}
       </Stack>
-    </Box>
+    </form>
   );
 }

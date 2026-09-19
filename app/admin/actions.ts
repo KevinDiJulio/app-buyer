@@ -31,7 +31,7 @@ export async function crearProducto(formData: FormData) {
   });
 
   if (!resultado.success) {
-    throw new Error(resultado.error.errors[0].message);
+    throw new Error(resultado.error.issues[0].message);
   }
 
   await prisma.producto.create({ data: resultado.data });
@@ -50,7 +50,7 @@ export async function editarProducto(id: number, formData: FormData) {
   });
 
   if (!resultado.success) {
-    throw new Error(resultado.error.errors[0].message);
+    throw new Error(resultado.error.issues[0].message);
   }
 
   await prisma.producto.update({ where: { id }, data: resultado.data });
@@ -61,7 +61,7 @@ export async function editarProducto(id: number, formData: FormData) {
 export async function borrarProducto(id: number) {
   await requireAdmin();
   const activos = await prisma.pedido.count({
-    where: { productoId: id, estado: { not: "cancelado" } },
+    where: { items: { some: { productoId: id } }, estado: { not: "cancelado" } },
   });
 
   if (activos > 0) {
