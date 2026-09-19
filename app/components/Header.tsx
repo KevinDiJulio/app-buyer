@@ -44,9 +44,9 @@ export default async function Header() {
         <BtnColorMode />
         {userId && (
           <Link href="/carrito">
-            <Button size="sm" variant="outline" colorPalette="purple" gap={2}>
+            <Text fontSize="sm" fontWeight="medium" color="gray.500" _hover={{ color: "purple.500" }}>
               🛒 Mi carrito
-            </Button>
+            </Text>
           </Link>
         )}
         {userId && (
